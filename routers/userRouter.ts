@@ -9,7 +9,6 @@ import {
 } from "../controllers/userController";
 
 const router = express.Router();
-console.log("hey");
 
 router.post("/signup", signUp);
 router.route("/").get(getAllUsers);
