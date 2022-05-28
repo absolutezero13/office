@@ -11,6 +11,7 @@ import {
 const router = express.Router();
 
 router.post("/signup", signUp);
+router.post("/signin", signIn);
 router.route("/").get(getAllUsers);
 router.route("/:id").get(getUser).delete(deleteUser).patch(updateUser);
 

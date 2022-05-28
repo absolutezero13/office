@@ -12,14 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.getUser = exports.getAllUsers = exports.signUp = exports.signIn = void 0;
+exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
-const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.status(200).json({
-        data: [],
-    });
-});
-exports.signIn = signIn;
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // 2 ways of creating document in mongoose
     // 1-
@@ -32,7 +28,9 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //await user.save();
     // 2-
     try {
-        const newUser = yield userModel_1.default.create(req.body);
+        const newUserInfo = req.body;
+        newUserInfo.password = yield bcryptjs_1.default.hash(newUserInfo.password, 10);
+        const newUser = yield userModel_1.default.create(newUserInfo);
         res.status(201).json({
             data: newUser,
         });
@@ -45,6 +43,40 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.signUp = signUp;
+const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userInfo = req.body;
+    const user = yield userModel_1.default.findOne({ email: userInfo.email });
+    if (!user) {
+        res.status(400).json({
+            status: "fail",
+            message: "User not found",
+        });
+        return;
+    }
+    const isMatch = yield bcryptjs_1.default.compare(userInfo.password, user.password);
+    if (!isMatch) {
+        res.status(400).json({
+            status: "fail",
+            message: "Wrong password",
+        });
+        return;
+    }
+    const token = jsonwebtoken_1.default.sign({
+        id: user._id,
+        userName: user.userName,
+        email: user.email,
+    }, "secret");
+    res.status(200).json({
+        data: {
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+            },
+        },
+    });
+});
+exports.signIn = signIn;
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield userModel_1.default.find().select("userName email");
@@ -63,21 +95,6 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getAllUsers = getAllUsers;
-const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield userModel_1.default.findById(req.params.id);
-        res.status(200).json({
-            data: user,
-        });
-    }
-    catch (err) {
-        res.status(400).json({
-            status: "fail",
-            message: err,
-        });
-    }
-});
-exports.getUser = getUser;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const updatedUser = req.body;
@@ -97,6 +114,21 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateUser = updateUser;
+const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield userModel_1.default.findById(req.params.id);
+        res.status(200).json({
+            data: user,
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            status: "fail",
+            message: err,
+        });
+    }
+});
+exports.getUser = getUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield userModel_1.default.findByIdAndDelete(req.params.id);

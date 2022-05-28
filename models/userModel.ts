@@ -37,7 +37,6 @@ export interface IUser {
   userName: string;
   email: string;
   password: string;
-  secretAnswer: string;
   role: string;
   position: string;
   createdAt: Date;

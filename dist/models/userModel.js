@@ -19,10 +19,6 @@ const UserSchema = new mongoose_1.default.Schema({
         type: String,
         required: [true, "Password is required."],
     },
-    secretAnswer: {
-        type: String,
-        required: [true, "Secret question is required."],
-    },
     role: {
         type: String,
         enum: ["user", "admin"],
