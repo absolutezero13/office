@@ -36,6 +36,7 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (err) {
+        console.log("err", err);
         res.status(400).json({
             status: "fail",
             message: err,
@@ -66,13 +67,11 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         userName: user.userName,
         email: user.email,
     }, "secret");
+    user.password = null;
     res.status(200).json({
         data: {
             token,
-            user: {
-                id: user._id,
-                email: user.email,
-            },
+            user,
         },
     });
 });

@@ -26,6 +26,7 @@ export const signUp = async (req: Request, res: Response) => {
       data: newUser,
     });
   } catch (err) {
+    console.log("err", err);
     res.status(400).json({
       status: "fail",
       message: err,
@@ -69,13 +70,12 @@ export const signIn = async (req: Request, res: Response) => {
     "secret"
   );
 
+  user.password = null;
+
   res.status(200).json({
     data: {
       token,
-      user: {
-        id: user._id,
-        email: user.email,
-      },
+      user,
     },
   });
 };

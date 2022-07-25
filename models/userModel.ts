@@ -15,14 +15,25 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, "Password is required."],
   },
+  gender: {
+    type: String,
+    required: [true, "Gender is required"],
+  },
+  birthDate: {
+    type: Date,
+    required: [true, "Birthdate is required."],
+  },
+  description: {
+    type: String,
+  },
+  profilePicture: {
+    type: String,
+  },
+  matches: [String], // ID REFERENCEP
   role: {
     type: String,
     enum: ["user", "admin"],
     default: "user",
-  },
-  position: {
-    type: String,
-    required: [true, "Position is required."],
   },
   createdAt: {
     type: Date,
@@ -38,8 +49,11 @@ export interface IUser {
   email: string;
   password: string;
   role: string;
-  position: string;
   createdAt: Date;
+  birthDate: Date;
+  description: string;
+  profilePicture: string;
+  matches: string[];
 }
 
 export default User;

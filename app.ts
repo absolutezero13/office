@@ -3,16 +3,21 @@ import mongoose from "mongoose";
 import fs from "fs";
 import dotenv from "dotenv";
 import userRouter from "./routers/userRouter";
-import bookingRouter from "./routers/bookingRouter";
 
 const app = express();
 dotenv.config();
 
-const DB = process.env.DB?.replace(
-  "<PASSWORD>",
-  process.env.DBPASSWORD as string
-);
+let db = process.env.TEST_DB_NAME as string;
+const mode: "prod" | "dev" = process.env.MODE as "prod" | "dev";
+if (mode === "prod") {
+  db = process.env.PROD_DB_NAME as string;
+}
 
+const DB = process.env.DB?.replace(
+  "<password>",
+  process.env.DBPASSWORD as string
+).replace("<db>", db);
+console.log("DB", DB);
 mongoose
   .connect(DB as string)
   .then((con) => {
@@ -27,6 +32,5 @@ app.use(express.json());
 app.use(express.static("public"));
 
 app.use("/users", userRouter);
-app.use("/bookings", bookingRouter);
 
 app.listen(process.env.PORT);

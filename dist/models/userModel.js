@@ -19,14 +19,25 @@ const UserSchema = new mongoose_1.default.Schema({
         type: String,
         required: [true, "Password is required."],
     },
+    gender: {
+        type: String,
+        required: [true, "Gender is required"],
+    },
+    birthDate: {
+        type: Date,
+        required: [true, "Birthdate is required."],
+    },
+    description: {
+        type: String,
+    },
+    profilePicture: {
+        type: String,
+    },
+    matches: [String],
     role: {
         type: String,
         enum: ["user", "admin"],
         default: "user",
-    },
-    position: {
-        type: String,
-        required: [true, "Position is required."],
     },
     createdAt: {
         type: Date,
