@@ -1,9 +1,19 @@
 import mongoose from "mongoose";
 
+const geoSchema = new mongoose.Schema({
+  type: String,
+  geometry: [Number, Number],
+});
+
+const imageSchema = new mongoose.Schema({
+  image: String,
+  order: Number,
+});
+
 const UserSchema = new mongoose.Schema({
-  userName: {
+  username: {
     type: String,
-    required: [true, "Username is required."],
+    required: [true, "username is required."],
     unique: true,
   },
   email: {
@@ -14,6 +24,11 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, "Password is required."],
+  },
+  phoneNumber: {
+    type: String,
+    required: [true, "Phone number is required."],
+    unique: true,
   },
   gender: {
     type: String,
@@ -26,14 +41,33 @@ const UserSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  profilePicture: {
-    type: String,
+  pictures: {
+    type: [imageSchema],
+    required: [true, "Pictures is required."],
   },
-  matches: [String], // ID REFERENCEP
+  matches: {
+    type: [String],
+    required: [true, "Matches is required field"],
+  }, // ID REFERENCES,
+  likes: {
+    type: [String],
+    required: [true, "Likes is required field."],
+  }, // ID REFERENCES
   role: {
     type: String,
     enum: ["user", "admin"],
     default: "user",
+  },
+  city: {
+    type: String,
+    required: [true, "city is required"],
+  },
+  county: {
+    type: String,
+    required: [true, "county is required"],
+  },
+  geometry: {
+    type: geoSchema,
   },
   createdAt: {
     type: Date,
@@ -45,15 +79,19 @@ const User = mongoose.model("User", UserSchema);
 
 export interface IUser {
   _id: string;
-  userName: string;
+  username: string;
   email: string;
+  phoneNumber: string;
   password: string;
-  role: string;
-  createdAt: Date;
-  birthDate: Date;
+  confirmPassword?: string;
+  gender: string;
+  birthDate: string;
   description: string;
   profilePicture: string;
   matches: string[];
+  likes: string[];
+  role: string;
+  createdAt: string;
 }
 
 export default User;

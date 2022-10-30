@@ -2,12 +2,17 @@ import { Request, Response } from "express";
 import User, { IUser } from "../models/userModel";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { checkJwt } from "../helpers/auth";
+import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { s3 } from "../aws/s3";
+import crypto from "crypto";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const signUp = async (req: Request, res: Response) => {
   // 2 ways of creating document in mongoose
   // 1-
   // const user: Document = new User({
-  //   userName,
+  //   username,
   //   email,
   //   password,
   //   secretQuestion,
@@ -23,6 +28,7 @@ export const signUp = async (req: Request, res: Response) => {
 
     const newUser = await User.create(newUserInfo);
     res.status(201).json({
+      status: "success",
       data: newUser,
     });
   } catch (err) {
@@ -34,16 +40,66 @@ export const signUp = async (req: Request, res: Response) => {
   }
 };
 
+export const uploadImages = async (req: Request, res: Response) => {
+  try {
+    console.log("req file", req.file);
+    console.log("req body", req.body);
+
+    const { userId, order } = req.body;
+
+    const imageName = req.file?.originalname + "-" + crypto.randomUUID();
+
+    const params = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: imageName,
+      Body: req.file?.buffer,
+      ContentType: req.file?.mimetype,
+    };
+
+    const imageObj = new PutObjectCommand(params);
+
+    await s3.send(imageObj);
+
+    await User.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        pictures: [{ image: imageName, order }],
+      }
+    );
+
+    res.send({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      success: false,
+    });
+  }
+
+  // const getObjParams = {
+  //   Bucket: process.env.BUCKET_NAME as string,
+  //   Key: imageName,
+  // };
+
+  // const command = new GetObjectCommand(getObjParams);
+
+  // const imageUrl = await getSignedUrl(s3, command, {});
+};
+
 export const signIn = async (req: Request, res: Response) => {
   const userInfo: {
-    email: string;
+    username: string;
     password: string;
   } = req.body;
 
-  const user = await User.findOne({ email: userInfo.email });
+  const user = await User.findOne({ username: userInfo.username });
 
   if (!user) {
-    res.status(400).json({
+    console.log("user not found");
+    res.status(404).send({
       status: "fail",
       message: "User not found",
     });
@@ -54,17 +110,19 @@ export const signIn = async (req: Request, res: Response) => {
   const isMatch = await bcrypt.compare(userInfo.password, user.password);
 
   if (!isMatch) {
+    console.log("user not found");
+
     res.status(400).json({
       status: "fail",
       message: "Wrong password",
     });
     return;
   }
-
+  console.log("success!!");
   const token = jwt.sign(
     {
       id: user._id,
-      userName: user.userName,
+      username: user.username,
       email: user.email,
     },
     "secret"
@@ -82,11 +140,16 @@ export const signIn = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users: IUser[] = await User.find().select("userName email");
+    const resp = await checkJwt(req, res);
+    console.log("resp?", resp);
+
+    if (!resp) return;
+    console.log("finding users");
+    const users: IUser[] = await User.find().select("-password");
 
     // const users = await User.find({})
-    //   .where("userName")
-    //   .equals(req.query.userName);
+    //   .where("username")
+    //   .equals(req.query.username);
 
     res.status(200).json({
       data: users,
