@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.getUserImages = exports.uploadImage = exports.signUp = void 0;
+exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.getUserImages = exports.deleteImage = exports.uploadImage = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -91,24 +91,72 @@ const uploadImage = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.uploadImage = uploadImage;
+const deleteImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
+    const imageName = req.body.imageName;
+    const deleteCommand = new client_s3_1.DeleteObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: imageName,
+    });
+    if (!imageName) {
+        res.status(400).json({
+            status: "fail",
+            message: "No Image name provided",
+        });
+        return;
+    }
+    try {
+        yield s3_1.s3.send(deleteCommand);
+        yield userModel_1.default.updateOne({
+            _id: req.params.id,
+        }, {
+            $pull: {
+                pictures: {
+                    image: imageName,
+                },
+            },
+        });
+        res.send({
+            success: true,
+            data: {
+                message: "Image Deleted " + imageName,
+            },
+        });
+    }
+    catch (error) {
+        res.status(400).json({
+            status: "fail",
+            message: error,
+        });
+    }
+});
+exports.deleteImage = deleteImage;
 const getUserImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield userModel_1.default.findById(req.params.id);
-    const images = [];
-    if (user) {
-        for (const imageObj of user === null || user === void 0 ? void 0 : user.pictures) {
-            const getObjParams = {
-                Bucket: process.env.BUCKET_NAME,
-                Key: imageObj.image,
-            };
-            const command = new client_s3_1.GetObjectCommand(getObjParams);
-            const imageUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.s3, command, {
-                expiresIn: 36000,
+    try {
+        const user = yield userModel_1.default.findById(req.params.id);
+        const images = [];
+        if (user) {
+            for (const imageObj of user === null || user === void 0 ? void 0 : user.pictures) {
+                const getObjParams = {
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: imageObj.image,
+                };
+                const command = new client_s3_1.GetObjectCommand(getObjParams);
+                const imageUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.s3, command, {
+                    expiresIn: 36000,
+                });
+                images.push(imageUrl);
+            }
+            res.status(200).json({
+                status: "success",
+                images,
             });
-            images.push(imageUrl);
         }
-        res.status(200).json({
-            status: "success",
-            images,
+    }
+    catch (error) {
+        res.status(400).json({
+            status: "fail",
+            message: error,
         });
     }
 });

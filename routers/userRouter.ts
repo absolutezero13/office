@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  deleteImage,
   deleteUser,
   getAllUsers,
   getUser,
@@ -20,7 +21,7 @@ router.post("/signup", signUp);
 router.post("/signin", signIn);
 router.post("/upload-images", upload.array("image"), uploadImage);
 router.route("/").get(getAllUsers);
-router.route("/:id/images").get(getUserImages);
+router.route("/:id/images").get(getUserImages).delete(deleteImage);
 router.route("/:id").get(getUser).delete(deleteUser).patch(updateUser);
 
 export default router;

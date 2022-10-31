@@ -3,7 +3,11 @@ import User, { IUser } from "../models/userModel";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { checkJwt } from "../helpers/auth";
-import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { s3 } from "../aws/s3";
 import crypto from "crypto";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -90,30 +94,83 @@ export const uploadImage = async (req: Request, res: Response) => {
   }
 };
 
+export const deleteImage = async (req: Request, res: Response) => {
+  console.log(req.body);
+  const imageName = req.body.imageName;
+
+  const deleteCommand = new DeleteObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: imageName,
+  });
+
+  if (!imageName) {
+    res.status(400).json({
+      status: "fail",
+      message: "No Image name provided",
+    });
+    return;
+  }
+
+  try {
+    await s3.send(deleteCommand);
+    await User.updateOne(
+      {
+        _id: req.params.id,
+      },
+      {
+        $pull: {
+          pictures: {
+            image: imageName,
+          },
+        },
+      }
+    );
+
+    res.send({
+      success: true,
+      data: {
+        message: "Image Deleted " + imageName,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error,
+    });
+  }
+};
+
 export const getUserImages = async (req: Request, res: Response) => {
-  const user: IUser | null = await User.findById(req.params.id);
+  try {
+    const user: IUser | null = await User.findById(req.params.id);
 
-  const images = [];
+    const images = [];
 
-  if (user) {
-    for (const imageObj of user?.pictures) {
-      const getObjParams = {
-        Bucket: process.env.BUCKET_NAME as string,
-        Key: imageObj.image,
-      };
+    if (user) {
+      for (const imageObj of user?.pictures) {
+        const getObjParams = {
+          Bucket: process.env.BUCKET_NAME as string,
+          Key: imageObj.image,
+        };
 
-      const command = new GetObjectCommand(getObjParams);
+        const command = new GetObjectCommand(getObjParams);
 
-      const imageUrl = await getSignedUrl(s3, command, {
-        expiresIn: 36000,
+        const imageUrl = await getSignedUrl(s3, command, {
+          expiresIn: 36000,
+        });
+
+        images.push(imageUrl);
+      }
+
+      res.status(200).json({
+        status: "success",
+        images,
       });
-
-      images.push(imageUrl);
     }
-
-    res.status(200).json({
-      status: "success",
-      images,
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error,
     });
   }
 };
