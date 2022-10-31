@@ -44,7 +44,7 @@ export const signUp = async (req: Request, res: Response) => {
   }
 };
 
-export const uploadImage = async (req: Request, res: Response) => {
+export const uploadImages = async (req: Request, res: Response) => {
   try {
     if (!req.files) {
       res.status(400).send({
@@ -53,7 +53,7 @@ export const uploadImage = async (req: Request, res: Response) => {
       return;
     }
 
-    const { userId } = req.body;
+    const userId = req.params.id;
 
     for (const file of req?.files as Express.Multer.File[]) {
       const imageName = file.originalname + "-" + crypto.randomUUID();

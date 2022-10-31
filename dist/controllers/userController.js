@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.getUserImages = exports.deleteImage = exports.uploadImage = exports.signUp = void 0;
+exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -50,7 +50,7 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.signUp = signUp;
-const uploadImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!req.files) {
             res.status(400).send({
@@ -58,7 +58,7 @@ const uploadImage = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             });
             return;
         }
-        const { userId } = req.body;
+        const userId = req.params.id;
         for (const file of req === null || req === void 0 ? void 0 : req.files) {
             const imageName = file.originalname + "-" + crypto_1.default.randomUUID();
             const params = {
@@ -90,7 +90,7 @@ const uploadImage = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 });
-exports.uploadImage = uploadImage;
+exports.uploadImages = uploadImages;
 const deleteImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.body);
     const imageName = req.body.imageName;

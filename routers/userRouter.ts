@@ -8,7 +8,7 @@ import {
   signIn,
   signUp,
   updateUser,
-  uploadImage,
+  uploadImages,
 } from "../controllers/userController";
 import multer from "multer";
 
@@ -19,9 +19,13 @@ const router = express.Router();
 
 router.post("/signup", signUp);
 router.post("/signin", signIn);
-router.post("/upload-images", upload.array("image"), uploadImage);
 router.route("/").get(getAllUsers);
-router.route("/:id/images").get(getUserImages).delete(deleteImage);
+
+router
+  .route("/:id/images")
+  .get(getUserImages)
+  .delete(deleteImage)
+  .post(upload.array("image"), uploadImages);
 router.route("/:id").get(getUser).delete(deleteUser).patch(updateUser);
 
 export default router;
