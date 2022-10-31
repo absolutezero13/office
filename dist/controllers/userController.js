@@ -12,11 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
+exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const auth_1 = require("../helpers/auth");
 const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_1 = require("../aws/s3");
 const crypto_1 = __importDefault(require("crypto"));
@@ -58,6 +57,7 @@ const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             });
             return;
         }
+        console.log("req.files!", req.files);
         const userId = req.params.id;
         for (const file of req === null || req === void 0 ? void 0 : req.files) {
             const imageName = file.originalname + "-" + crypto_1.default.randomUUID();
@@ -161,8 +161,34 @@ const getUserImages = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getUserImages = getUserImages;
+const isUnique = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { fieldName, value } = req.body;
+    try {
+        const fieldData = yield userModel_1.default.findOne({ [fieldName]: value });
+        if (!fieldData) {
+            res.status(200).json({
+                status: "success",
+                isUnique: true,
+            });
+        }
+        else {
+            res.status(200).json({
+                status: "success",
+                isUnique: false,
+            });
+        }
+    }
+    catch (error) {
+        res.status(400).json({
+            status: "fail",
+            message: "No Image name provided",
+        });
+    }
+});
+exports.isUnique = isUnique;
 const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userInfo = req.body;
+    console.log("SIGNING IN?");
     const user = yield userModel_1.default.findOne({ username: userInfo.username });
     if (!user) {
         console.log("user not found");
@@ -198,10 +224,9 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.signIn = signIn;
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const resp = yield (0, auth_1.checkJwt)(req, res);
-        console.log("resp?", resp);
-        if (!resp)
-            return;
+        // const resp = await checkJwt(req, res);
+        // console.log("resp?", resp);
+        // if (!resp) return;
         console.log("finding users");
         const users = yield userModel_1.default.find().select("-password");
         // const users = await User.find({})

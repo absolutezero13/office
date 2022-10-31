@@ -29,4 +29,5 @@ dotenv_1.default.config({ path: "./.env" });
 app.use(express_1.default.json());
 app.use(express_1.default.static("public"));
 app.use("/users", userRouter_1.default);
+app.get("/", (req, res) => res.send("Hello From the server. This is a test route"));
 app.listen(process.env.PORT);

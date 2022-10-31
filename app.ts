@@ -31,5 +31,8 @@ app.use(express.json());
 app.use(express.static("public"));
 
 app.use("/users", userRouter);
+app.get("/", (req, res) =>
+  res.send("Hello From the server. This is a test route")
+);
 
 app.listen(process.env.PORT);

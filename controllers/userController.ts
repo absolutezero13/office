@@ -53,6 +53,8 @@ export const uploadImages = async (req: Request, res: Response) => {
       return;
     }
 
+    console.log("req.files!", req.files);
+
     const userId = req.params.id;
 
     for (const file of req?.files as Express.Multer.File[]) {
@@ -175,11 +177,38 @@ export const getUserImages = async (req: Request, res: Response) => {
   }
 };
 
+export const isUnique = async (req: Request, res: Response) => {
+  const { fieldName, value } = req.body;
+
+  try {
+    const fieldData = await User.findOne({ [fieldName]: value });
+
+    if (!fieldData) {
+      res.status(200).json({
+        status: "success",
+        isUnique: true,
+      });
+    } else {
+      res.status(200).json({
+        status: "success",
+        isUnique: false,
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: "No Image name provided",
+    });
+  }
+};
+
 export const signIn = async (req: Request, res: Response) => {
   const userInfo: {
     username: string;
     password: string;
   } = req.body;
+
+  console.log("SIGNING IN?");
 
   const user = await User.findOne({ username: userInfo.username });
 
@@ -226,10 +255,10 @@ export const signIn = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const resp = await checkJwt(req, res);
-    console.log("resp?", resp);
+    // const resp = await checkJwt(req, res);
+    // console.log("resp?", resp);
 
-    if (!resp) return;
+    // if (!resp) return;
     console.log("finding users");
     const users: IUser[] = await User.find().select("-password");
 

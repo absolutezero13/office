@@ -1,21 +1,53 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
+import User from "../models/userModel";
 
-export const checkJwt = async (req: Request, res: Response) => {
-  const [_, token] = req.headers.authorization?.split(" ");
+export const checkJwt = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // Getting token if it exists
+  let token;
 
-  try {
-    const decoded = jwt.verify(token, "secret");
-    console.log("decoded", decoded);
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
 
-    return true;
-  } catch (err) {
-    console.log(err);
-    res.status(400).json({
-      message: "Invalid JWT",
-    });
-
-    return false;
+    if (!token) {
+      return res.status(401).json({
+        status: "fail!",
+        message: "NOT AUTHORIZED",
+      });
+    }
   }
+  console.log(req.headers);
+  // res.status(200).json({
+  //   status: "succes!",
+  // });
+  // validate token
+
+  // const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // // check if user still exists
+
+  // const currentUser = await User.findById(decoded.id);
+
+  // console.log(currentUser);
+
+  // if (!currentUser) {
+  //   res.status(401).json({
+  //     status: "fail",
+  //     message: "NOT AUTHORIZED",
+  //   });
+  // }
+
+  // check if user changed password after token was issued
+
+  // ACCESS FINALLY
+
+  // req.user = currentUser;
+  next();
 };
