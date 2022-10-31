@@ -40,53 +40,82 @@ export const signUp = async (req: Request, res: Response) => {
   }
 };
 
-export const uploadImages = async (req: Request, res: Response) => {
+export const uploadImage = async (req: Request, res: Response) => {
   try {
-    console.log("req file", req.file);
-    console.log("req body", req.body);
+    if (!req.files) {
+      res.status(400).send({
+        message: "files required!",
+      });
+      return;
+    }
 
-    const { userId, order } = req.body;
+    const { userId } = req.body;
 
-    const imageName = req.file?.originalname + "-" + crypto.randomUUID();
+    for (const file of req?.files as Express.Multer.File[]) {
+      const imageName = file.originalname + "-" + crypto.randomUUID();
 
-    const params = {
-      Bucket: process.env.BUCKET_NAME,
-      Key: imageName,
-      Body: req.file?.buffer,
-      ContentType: req.file?.mimetype,
-    };
+      const params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: imageName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
 
-    const imageObj = new PutObjectCommand(params);
+      const imageObj = new PutObjectCommand(params);
 
-    await s3.send(imageObj);
+      await s3.send(imageObj);
 
-    await User.updateOne(
-      {
-        _id: userId,
-      },
-      {
-        pictures: [{ image: imageName, order }],
-      }
-    );
+      await User.updateOne(
+        {
+          _id: userId,
+        },
+        {
+          $push: { pictures: { image: imageName, order: 0 } },
+        }
+      );
+    }
 
     res.send({
       success: true,
+      data: {
+        message: "Images Uploaded",
+      },
     });
   } catch (error) {
     console.log(error);
     res.send({
       success: false,
+      error,
     });
   }
+};
 
-  // const getObjParams = {
-  //   Bucket: process.env.BUCKET_NAME as string,
-  //   Key: imageName,
-  // };
+export const getUserImages = async (req: Request, res: Response) => {
+  const user: IUser | null = await User.findById(req.params.id);
 
-  // const command = new GetObjectCommand(getObjParams);
+  const images = [];
 
-  // const imageUrl = await getSignedUrl(s3, command, {});
+  if (user) {
+    for (const imageObj of user?.pictures) {
+      const getObjParams = {
+        Bucket: process.env.BUCKET_NAME as string,
+        Key: imageObj.image,
+      };
+
+      const command = new GetObjectCommand(getObjParams);
+
+      const imageUrl = await getSignedUrl(s3, command, {
+        expiresIn: 36000,
+      });
+
+      images.push(imageUrl);
+    }
+
+    res.status(200).json({
+      status: "success",
+      images,
+    });
+  }
 };
 
 export const signIn = async (req: Request, res: Response) => {
@@ -183,7 +212,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user: IUser | null = await User.findById(req.params.id);
 
     res.status(200).json({
       data: user,

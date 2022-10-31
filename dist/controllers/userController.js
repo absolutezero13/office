@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.uploadImages = exports.signUp = void 0;
+exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signIn = exports.getUserImages = exports.uploadImage = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -20,6 +20,7 @@ const auth_1 = require("../helpers/auth");
 const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_1 = require("../aws/s3");
 const crypto_1 = __importDefault(require("crypto"));
+const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // 2 ways of creating document in mongoose
     // 1-
@@ -49,44 +50,69 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.signUp = signUp;
-const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+const uploadImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("req file", req.file);
-        console.log("req body", req.body);
-        const { userId, order } = req.body;
-        const imageName = ((_a = req.file) === null || _a === void 0 ? void 0 : _a.originalname) + "-" + crypto_1.default.randomUUID();
-        const params = {
-            Bucket: process.env.BUCKET_NAME,
-            Key: imageName,
-            Body: (_b = req.file) === null || _b === void 0 ? void 0 : _b.buffer,
-            ContentType: (_c = req.file) === null || _c === void 0 ? void 0 : _c.mimetype,
-        };
-        const imageObj = new client_s3_1.PutObjectCommand(params);
-        yield s3_1.s3.send(imageObj);
-        yield userModel_1.default.updateOne({
-            _id: userId,
-        }, {
-            pictures: [{ image: imageName, order }],
-        });
+        if (!req.files) {
+            res.status(400).send({
+                message: "files required!",
+            });
+            return;
+        }
+        const { userId } = req.body;
+        for (const file of req === null || req === void 0 ? void 0 : req.files) {
+            const imageName = file.originalname + "-" + crypto_1.default.randomUUID();
+            const params = {
+                Bucket: process.env.BUCKET_NAME,
+                Key: imageName,
+                Body: file.buffer,
+                ContentType: file.mimetype,
+            };
+            const imageObj = new client_s3_1.PutObjectCommand(params);
+            yield s3_1.s3.send(imageObj);
+            yield userModel_1.default.updateOne({
+                _id: userId,
+            }, {
+                $push: { pictures: { image: imageName, order: 0 } },
+            });
+        }
         res.send({
             success: true,
+            data: {
+                message: "Images Uploaded",
+            },
         });
     }
     catch (error) {
         console.log(error);
         res.send({
             success: false,
+            error,
         });
     }
-    // const getObjParams = {
-    //   Bucket: process.env.BUCKET_NAME as string,
-    //   Key: imageName,
-    // };
-    // const command = new GetObjectCommand(getObjParams);
-    // const imageUrl = await getSignedUrl(s3, command, {});
 });
-exports.uploadImages = uploadImages;
+exports.uploadImage = uploadImage;
+const getUserImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield userModel_1.default.findById(req.params.id);
+    const images = [];
+    if (user) {
+        for (const imageObj of user === null || user === void 0 ? void 0 : user.pictures) {
+            const getObjParams = {
+                Bucket: process.env.BUCKET_NAME,
+                Key: imageObj.image,
+            };
+            const command = new client_s3_1.GetObjectCommand(getObjParams);
+            const imageUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.s3, command, {
+                expiresIn: 36000,
+            });
+            images.push(imageUrl);
+        }
+        res.status(200).json({
+            status: "success",
+            images,
+        });
+    }
+});
+exports.getUserImages = getUserImages;
 const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userInfo = req.body;
     const user = yield userModel_1.default.findOne({ username: userInfo.username });
