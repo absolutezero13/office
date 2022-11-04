@@ -16,7 +16,7 @@ const DB = process.env.DB?.replace(
   "<password>",
   process.env.DBPASSWORD as string
 ).replace("<db>", db);
-console.log("DB", DB);
+
 mongoose
   .connect(DB as string)
   .then((con) => {

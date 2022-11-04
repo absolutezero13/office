@@ -25,10 +25,16 @@ router.route("/").get(checkJwt, getAllUsers);
 router.route("/isUnique").post(isUnique);
 
 router
+  .route("/:id")
+  .get(checkJwt, getUser)
+  .delete(checkJwt, deleteUser)
+  .patch(checkJwt, updateUser);
+
+// IMAGE ROUTES
+router
   .route("/:id/images")
-  .get(getUserImages)
-  .delete(deleteImage)
-  .post(upload.array("image"), uploadImages);
-router.route("/:id").get(getUser).delete(deleteUser).patch(updateUser);
+  .get(checkJwt, getUserImages)
+  .delete(checkJwt, deleteImage)
+  .post(checkJwt, upload.array("image"), uploadImages);
 
 export default router;

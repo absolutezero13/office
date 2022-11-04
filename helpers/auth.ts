@@ -8,46 +8,45 @@ export const checkJwt = async (
   res: Response,
   next: NextFunction
 ) => {
-  // Getting token if it exists
-  let token;
+  try {
+    let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
 
-    if (!token) {
-      return res.status(401).json({
-        status: "fail!",
+      if (!token) {
+        return res.status(401).json({
+          status: "fail!",
+          message: "NOT AUTHORIZED",
+        });
+      }
+    }
+
+    // VALIDATING TOKEN
+
+    const decoded = jwt.verify(
+      token as string,
+      process.env.JWT_SECRET as string
+    ) as jwt.JwtPayload;
+
+    const currentUser = await User.findById(decoded.id);
+
+    if (!currentUser) {
+      res.status(401).json({
+        status: "fail",
         message: "NOT AUTHORIZED",
       });
     }
+
+    req.body.user = currentUser;
+    next();
+  } catch (error) {
+    res.status(400).json({
+      message: "fail",
+      error,
+    });
   }
-  console.log(req.headers);
-  // res.status(200).json({
-  //   status: "succes!",
-  // });
-  // validate token
-
-  // const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  // // check if user still exists
-
-  // const currentUser = await User.findById(decoded.id);
-
-  // console.log(currentUser);
-
-  // if (!currentUser) {
-  //   res.status(401).json({
-  //     status: "fail",
-  //     message: "NOT AUTHORIZED",
-  //   });
-  // }
-
-  // check if user changed password after token was issued
-
-  // ACCESS FINALLY
-
-  // req.user = currentUser;
-  next();
 };

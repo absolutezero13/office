@@ -15,9 +15,14 @@ router.post("/signin", userController_1.signIn);
 router.route("/").get(auth_1.checkJwt, userController_1.getAllUsers);
 router.route("/isUnique").post(userController_1.isUnique);
 router
+    .route("/:id")
+    .get(auth_1.checkJwt, userController_1.getUser)
+    .delete(auth_1.checkJwt, userController_1.deleteUser)
+    .patch(auth_1.checkJwt, userController_1.updateUser);
+// IMAGE ROUTES
+router
     .route("/:id/images")
-    .get(userController_1.getUserImages)
-    .delete(userController_1.deleteImage)
-    .post(upload.array("image"), userController_1.uploadImages);
-router.route("/:id").get(userController_1.getUser).delete(userController_1.deleteUser).patch(userController_1.updateUser);
+    .get(auth_1.checkJwt, userController_1.getUserImages)
+    .delete(auth_1.checkJwt, userController_1.deleteImage)
+    .post(auth_1.checkJwt, upload.array("image"), userController_1.uploadImages);
 exports.default = router;

@@ -52,7 +52,7 @@ exports.signUp = signUp;
 const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!req.files) {
-            res.status(400).send({
+            res.status(400).json({
                 message: "files required!",
             });
             return;
@@ -187,39 +187,46 @@ const isUnique = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.isUnique = isUnique;
 const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userInfo = req.body;
-    console.log("SIGNING IN?");
-    const user = yield userModel_1.default.findOne({ username: userInfo.username });
-    if (!user) {
-        console.log("user not found");
-        res.status(404).send({
-            status: "fail",
-            message: "User not found",
+    try {
+        const userInfo = req.body;
+        const user = yield userModel_1.default.findOne({ username: userInfo.username });
+        if (!user) {
+            console.log("user not found");
+            res.status(404).send({
+                status: "fail",
+                message: "User not found",
+            });
+            return;
+        }
+        const isMatch = yield bcryptjs_1.default.compare(userInfo.password, user.password);
+        if (!isMatch) {
+            console.log("user not found");
+            res.status(400).json({
+                status: "fail",
+                message: "Wrong password",
+            });
+            return;
+        }
+        console.log("success!!");
+        const token = jsonwebtoken_1.default.sign({
+            id: user._id,
+            username: user.username,
+            email: user.email,
+        }, "secret");
+        user.password = null;
+        res.status(200).json({
+            data: {
+                token,
+                user,
+            },
         });
-        return;
     }
-    const isMatch = yield bcryptjs_1.default.compare(userInfo.password, user.password);
-    if (!isMatch) {
-        console.log("user not found");
+    catch (error) {
         res.status(400).json({
-            status: "fail",
-            message: "Wrong password",
+            message: "fail",
+            error,
         });
-        return;
     }
-    console.log("success!!");
-    const token = jsonwebtoken_1.default.sign({
-        id: user._id,
-        username: user.username,
-        email: user.email,
-    }, "secret");
-    user.password = null;
-    res.status(200).json({
-        data: {
-            token,
-            user,
-        },
-    });
 });
 exports.signIn = signIn;
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

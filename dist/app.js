@@ -16,7 +16,6 @@ if (mode === "prod") {
     db = process.env.PROD_DB_NAME;
 }
 const DB = (_a = process.env.DB) === null || _a === void 0 ? void 0 : _a.replace("<password>", process.env.DBPASSWORD).replace("<db>", db);
-console.log("DB", DB);
 mongoose_1.default
     .connect(DB)
     .then((con) => {

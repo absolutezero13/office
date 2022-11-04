@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import User, { IUser } from "../models/userModel";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { checkJwt } from "../helpers/auth";
 import {
   PutObjectCommand,
   GetObjectCommand,
@@ -47,7 +46,7 @@ export const signUp = async (req: Request, res: Response) => {
 export const uploadImages = async (req: Request, res: Response) => {
   try {
     if (!req.files) {
-      res.status(400).send({
+      res.status(400).json({
         message: "files required!",
       });
       return;
@@ -203,54 +202,59 @@ export const isUnique = async (req: Request, res: Response) => {
 };
 
 export const signIn = async (req: Request, res: Response) => {
-  const userInfo: {
-    username: string;
-    password: string;
-  } = req.body;
+  try {
+    const userInfo: {
+      username: string;
+      password: string;
+    } = req.body;
 
-  console.log("SIGNING IN?");
+    const user = await User.findOne({ username: userInfo.username });
 
-  const user = await User.findOne({ username: userInfo.username });
+    if (!user) {
+      console.log("user not found");
+      res.status(404).send({
+        status: "fail",
+        message: "User not found",
+      });
 
-  if (!user) {
-    console.log("user not found");
-    res.status(404).send({
-      status: "fail",
-      message: "User not found",
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(userInfo.password, user.password);
+
+    if (!isMatch) {
+      console.log("user not found");
+
+      res.status(400).json({
+        status: "fail",
+        message: "Wrong password",
+      });
+      return;
+    }
+    console.log("success!!");
+    const token = jwt.sign(
+      {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+      "secret"
+    );
+
+    user.password = null;
+
+    res.status(200).json({
+      data: {
+        token,
+        user,
+      },
     });
-
-    return;
-  }
-
-  const isMatch = await bcrypt.compare(userInfo.password, user.password);
-
-  if (!isMatch) {
-    console.log("user not found");
-
+  } catch (error) {
     res.status(400).json({
-      status: "fail",
-      message: "Wrong password",
+      message: "fail",
+      error,
     });
-    return;
   }
-  console.log("success!!");
-  const token = jwt.sign(
-    {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
-    "secret"
-  );
-
-  user.password = null;
-
-  res.status(200).json({
-    data: {
-      token,
-      user,
-    },
-  });
 };
 
 export const getAllUsers = async (req: Request, res: Response) => {
