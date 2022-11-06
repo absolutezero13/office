@@ -96,8 +96,7 @@ export const uploadImages = async (req: Request, res: Response) => {
 };
 
 export const deleteImage = async (req: Request, res: Response) => {
-  console.log(req.body);
-  const imageName = req.body.imageName;
+  const imageName = req.params.imageName;
 
   const deleteCommand = new DeleteObjectCommand({
     Bucket: process.env.BUCKET_NAME,

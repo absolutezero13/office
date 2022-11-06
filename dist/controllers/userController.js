@@ -92,8 +92,7 @@ const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.uploadImages = uploadImages;
 const deleteImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
-    const imageName = req.body.imageName;
+    const imageName = req.params.imageName;
     const deleteCommand = new client_s3_1.DeleteObjectCommand({
         Bucket: process.env.BUCKET_NAME,
         Key: imageName,
