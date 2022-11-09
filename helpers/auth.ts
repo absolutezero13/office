@@ -32,7 +32,7 @@ export const checkJwt = async (
     ) as jwt.JwtPayload;
 
     const currentUser = await User.findById(decoded.id);
-
+    console.log({ currentUser });
     if (!currentUser) {
       res.status(401).json({
         status: "fail",
