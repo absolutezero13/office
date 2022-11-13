@@ -144,7 +144,7 @@ const getUserImages = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 const imageUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.s3, command, {
                     expiresIn: 36000,
                 });
-                images.push(imageUrl);
+                images.push({ imageUrl, imageName: imageObj.image });
             }
             res.status(200).json({
                 status: "success",

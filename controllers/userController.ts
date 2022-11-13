@@ -159,7 +159,7 @@ export const getUserImages = async (req: Request, res: Response) => {
           expiresIn: 36000,
         });
 
-        images.push(imageUrl);
+        images.push({ imageUrl, imageName: imageObj.image });
       }
 
       res.status(200).json({
