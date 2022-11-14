@@ -34,7 +34,7 @@ export const checkJwt = async (
     const currentUser = await User.findById(decoded.id);
     console.log({ currentUser });
     if (!currentUser) {
-      res.status(401).json({
+      return res.status(401).json({
         status: "fail",
         message: "NOT AUTHORIZED",
       });
