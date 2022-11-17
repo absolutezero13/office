@@ -190,19 +190,17 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const userInfo = req.body;
         const user = yield userModel_1.default.findOne({ username: userInfo.username });
         if (!user) {
-            console.log("user not found");
-            res.status(404).send({
+            res.status(401).json({
                 status: "fail",
-                message: "User not found",
+                message: "Yanlış kullanıcı adı ya da şifre.",
             });
             return;
         }
         const isMatch = yield bcryptjs_1.default.compare(userInfo.password, user.password);
         if (!isMatch) {
-            console.log("user not found");
             res.status(400).json({
                 status: "fail",
-                message: "Wrong password",
+                message: "Yanlış kullanıcı adı ya da şifre.",
             });
             return;
         }

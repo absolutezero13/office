@@ -210,10 +210,9 @@ export const signIn = async (req: Request, res: Response) => {
     const user = await User.findOne({ username: userInfo.username });
 
     if (!user) {
-      console.log("user not found");
-      res.status(404).send({
+      res.status(401).json({
         status: "fail",
-        message: "User not found",
+        message: "Yanlış kullanıcı adı ya da şifre.",
       });
 
       return;
@@ -222,11 +221,9 @@ export const signIn = async (req: Request, res: Response) => {
     const isMatch = await bcrypt.compare(userInfo.password, user.password);
 
     if (!isMatch) {
-      console.log("user not found");
-
       res.status(400).json({
         status: "fail",
-        message: "Wrong password",
+        message: "Yanlış kullanıcı adı ya da şifre.",
       });
       return;
     }
