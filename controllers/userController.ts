@@ -146,27 +146,31 @@ export const getUserImages = async (req: Request, res: Response) => {
 
     const images = [];
 
-    if (user) {
-      for (const imageObj of user?.pictures) {
-        const getObjParams = {
-          Bucket: process.env.BUCKET_NAME as string,
-          Key: imageObj.image,
-        };
-
-        const command = new GetObjectCommand(getObjParams);
-
-        const imageUrl = await getSignedUrl(s3, command, {
-          expiresIn: 36000,
-        });
-
-        images.push({ imageUrl, imageName: imageObj.image });
-      }
-
-      res.status(200).json({
-        status: "success",
-        images,
+    if (!user) {
+      return res.status(404).json({
+        message: "no such user!",
       });
     }
+
+    for (const imageObj of user?.pictures) {
+      const getObjParams = {
+        Bucket: process.env.BUCKET_NAME as string,
+        Key: imageObj.image,
+      };
+
+      const command = new GetObjectCommand(getObjParams);
+
+      const imageUrl = await getSignedUrl(s3, command, {
+        expiresIn: 36000,
+      });
+
+      images.push({ imageUrl, imageName: imageObj.image });
+    }
+
+    res.status(200).json({
+      status: "success",
+      images,
+    });
   } catch (error) {
     res.status(400).json({
       status: "fail",

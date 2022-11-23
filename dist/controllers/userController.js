@@ -134,23 +134,26 @@ const getUserImages = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const user = yield userModel_1.default.findById(req.params.id);
         const images = [];
-        if (user) {
-            for (const imageObj of user === null || user === void 0 ? void 0 : user.pictures) {
-                const getObjParams = {
-                    Bucket: process.env.BUCKET_NAME,
-                    Key: imageObj.image,
-                };
-                const command = new client_s3_1.GetObjectCommand(getObjParams);
-                const imageUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.s3, command, {
-                    expiresIn: 36000,
-                });
-                images.push({ imageUrl, imageName: imageObj.image });
-            }
-            res.status(200).json({
-                status: "success",
-                images,
+        if (!user) {
+            return res.status(404).json({
+                message: "no such user!",
             });
         }
+        for (const imageObj of user === null || user === void 0 ? void 0 : user.pictures) {
+            const getObjParams = {
+                Bucket: process.env.BUCKET_NAME,
+                Key: imageObj.image,
+            };
+            const command = new client_s3_1.GetObjectCommand(getObjParams);
+            const imageUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.s3, command, {
+                expiresIn: 36000,
+            });
+            images.push({ imageUrl, imageName: imageObj.image });
+        }
+        res.status(200).json({
+            status: "success",
+            images,
+        });
     }
     catch (error) {
         res.status(400).json({
@@ -262,7 +265,8 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     catch (err) {
         res.status(400).json({
             status: "fail",
-            message: err,
+            err,
+            message: "some Error occured",
         });
     }
 });
