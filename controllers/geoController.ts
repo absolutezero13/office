@@ -6,7 +6,6 @@ export const getLocationFromCoordinates = async (
   res: Response
 ) => {
   try {
-    console.log("query", req.query);
     const url = `https://api.opencagedata.com/geocode/v1/json?q=${req.query.lat}+${req.query.lng}&key=${process.env.GEO_API_KEY}`;
 
     const resp = await axios.get(url);

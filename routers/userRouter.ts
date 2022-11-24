@@ -7,6 +7,7 @@ import {
   getUserImages,
   isUnique,
   signIn,
+  signInWithToken,
   signUp,
   updateUser,
   uploadImages,
@@ -21,6 +22,7 @@ const router = express.Router();
 
 router.post("/signup", signUp);
 router.post("/signin", signIn);
+router.post("/signin-with-token", checkJwt, signInWithToken);
 router.route("/").get(checkJwt, getAllUsers);
 router.route("/isUnique").post(isUnique);
 

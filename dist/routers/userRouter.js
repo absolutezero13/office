@@ -12,6 +12,7 @@ const upload = (0, multer_1.default)({ storage });
 const router = express_1.default.Router();
 router.post("/signup", userController_1.signUp);
 router.post("/signin", userController_1.signIn);
+router.post("/signin-with-token", auth_1.checkJwt, userController_1.signInWithToken);
 router.route("/").get(auth_1.checkJwt, userController_1.getAllUsers);
 router.route("/isUnique").post(userController_1.isUnique);
 router

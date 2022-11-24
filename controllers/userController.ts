@@ -245,6 +245,20 @@ export const signIn = async (req: Request, res: Response) => {
   }
 };
 
+export const signInWithToken = async (req: Request, res: Response) => {
+  try {
+    res.status(200).json({
+      data: {
+        user: req.body.user,
+      },
+    });
+  } catch (error) {
+    res.status(400).send({
+      error,
+    });
+  }
+};
+
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     // const resp = await checkJwt(req, res);
