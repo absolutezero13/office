@@ -21,16 +21,6 @@ const s3_1 = require("../aws/s3");
 const crypto_1 = __importDefault(require("crypto"));
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // 2 ways of creating document in mongoose
-    // 1-
-    // const user: Document = new User({
-    //   username,
-    //   email,
-    //   password,
-    //   secretQuestion,
-    // });
-    //await user.save();
-    // 2-
     try {
         const newUserInfo = req.body;
         newUserInfo.password = yield bcryptjs_1.default.hash(newUserInfo.password, 10);

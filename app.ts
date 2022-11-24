@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRouter from "./routers/userRouter";
+import geoRouter from "./routers/geoRouter";
 
 const app = express();
 dotenv.config();
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 app.use("/users", userRouter);
+app.use("/geo", geoRouter);
 app.get("/", (req, res) =>
   res.send("Hello From the server. This is a test route")
 );

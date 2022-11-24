@@ -12,18 +12,6 @@ import crypto from "crypto";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const signUp = async (req: Request, res: Response) => {
-  // 2 ways of creating document in mongoose
-  // 1-
-  // const user: Document = new User({
-  //   username,
-  //   email,
-  //   password,
-  //   secretQuestion,
-  // });
-  //await user.save();
-
-  // 2-
-
   try {
     const newUserInfo: IUser = req.body;
 
