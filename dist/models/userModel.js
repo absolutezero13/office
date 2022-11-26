@@ -55,6 +55,10 @@ const UserSchema = new mongoose_1.default.Schema({
         type: [String],
         required: [true, "Likes is required field."],
     },
+    dislikes: {
+        type: [String],
+        required: [true, "Dislikes is required field."],
+    },
     role: {
         type: String,
         enum: ["user", "admin"],

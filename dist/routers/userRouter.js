@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const userController_1 = require("../controllers/userController");
 const multer_1 = __importDefault(require("multer"));
 const auth_1 = require("../helpers/auth");
+const devController_1 = require("../controllers/devController");
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
 const router = express_1.default.Router();
@@ -15,6 +16,7 @@ router.post("/signin", userController_1.signIn);
 router.post("/signin-with-token", auth_1.checkJwt, userController_1.signInWithToken);
 router.route("/").get(auth_1.checkJwt, userController_1.getAllUsers);
 router.route("/isUnique").post(userController_1.isUnique);
+router.route("/generate-users").get(devController_1.generateUsers);
 router
     .route("/:id")
     .get(auth_1.checkJwt, userController_1.getUser)

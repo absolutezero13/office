@@ -236,15 +236,14 @@ const signInWithToken = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.signInWithToken = signInWithToken;
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // const resp = await checkJwt(req, res);
-        // console.log("resp?", resp);
-        // if (!resp) return;
         console.log("finding users");
-        const users = yield userModel_1.default.find().select("-password");
-        // const users = await User.find({})
-        //   .where("username")
-        //   .equals(req.query.username);
+        const currentUser = req.body.user;
+        const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
+        const users = yield userModel_1.default.find({
+            _id: { $nin: likeAndDislikes },
+        }).select("-password");
         res.status(200).json({
+            count: users.length,
             data: users,
         });
     }

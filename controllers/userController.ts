@@ -261,18 +261,17 @@ export const signInWithToken = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    // const resp = await checkJwt(req, res);
-    // console.log("resp?", resp);
-
-    // if (!resp) return;
     console.log("finding users");
-    const users: IUser[] = await User.find().select("-password");
+    const currentUser: IUser = req.body.user;
 
-    // const users = await User.find({})
-    //   .where("username")
-    //   .equals(req.query.username);
+    const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
+
+    const users: IUser[] = await User.find({
+      _id: { $nin: likeAndDislikes },
+    }).select("-password");
 
     res.status(200).json({
+      count: users.length,
       data: users,
     });
   } catch (err) {

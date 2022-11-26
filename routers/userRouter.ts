@@ -14,6 +14,7 @@ import {
 } from "../controllers/userController";
 import multer from "multer";
 import { checkJwt } from "../helpers/auth";
+import { generateUsers } from "../controllers/devController";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -25,6 +26,7 @@ router.post("/signin", signIn);
 router.post("/signin-with-token", checkJwt, signInWithToken);
 router.route("/").get(checkJwt, getAllUsers);
 router.route("/isUnique").post(isUnique);
+router.route("/generate-users").get(generateUsers);
 
 router
   .route("/:id")

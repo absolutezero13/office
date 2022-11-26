@@ -53,6 +53,10 @@ const UserSchema = new mongoose.Schema({
     type: [String],
     required: [true, "Likes is required field."],
   }, // ID REFERENCES
+  dislikes: {
+    type: [String],
+    required: [true, "Dislikes is required field."],
+  }, // ID REFERENCES
   role: {
     type: String,
     enum: ["user", "admin"],
@@ -89,6 +93,7 @@ export interface IUser {
   pictures: { image: string; order: number }[];
   matches: string[];
   likes: string[];
+  dislikes: string[];
   role: string;
   createdAt: string;
   city: string;
