@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const geoSchema = new mongoose.Schema({
   type: String,
-  geometry: [Number, Number],
+  coordinates: [Number, Number],
 });
 
 const imageSchema = new mongoose.Schema({

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const geoSchema = new mongoose_1.default.Schema({
     type: String,
-    geometry: [Number, Number],
+    coordinates: [Number, Number],
 });
 const imageSchema = new mongoose_1.default.Schema({
     image: String,
