@@ -82,6 +82,7 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model("User", UserSchema);
 
 export interface IUser {
+  _id: string;
   username: string;
   email: string;
   phoneNumber: string;

@@ -239,9 +239,13 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         console.log("finding users");
         const currentUser = req.body.user;
         const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
+        const self = currentUser._id;
+        const allFilters = [...likeAndDislikes, self];
         const users = yield userModel_1.default.find({
-            _id: { $nin: likeAndDislikes },
-        }).select("-password");
+            _id: { $nin: allFilters },
+        })
+            .limit(20)
+            .select("-password");
         res.status(200).json({
             count: users.length,
             data: users,

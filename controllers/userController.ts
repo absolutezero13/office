@@ -265,10 +265,15 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const currentUser: IUser = req.body.user;
 
     const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
+    const self = currentUser._id;
+
+    const allFilters = [...likeAndDislikes, self];
 
     const users: IUser[] = await User.find({
-      _id: { $nin: likeAndDislikes },
-    }).select("-password");
+      _id: { $nin: allFilters },
+    })
+      .limit(20)
+      .select("-password");
 
     res.status(200).json({
       count: users.length,
