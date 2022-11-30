@@ -77,6 +77,18 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  preferences: {
+    required: [true, "preferences is required"],
+    type: {
+      distance: Number,
+      gender: {
+        male: Boolean,
+        female: Boolean,
+        all: Boolean,
+      },
+      ages: [Number, Number],
+    },
+  },
 });
 
 const User = mongoose.model("User", UserSchema);
@@ -99,6 +111,15 @@ export interface IUser {
   createdAt: string;
   city: string;
   county: string;
+  preferences: {
+    distance: number;
+    gender: {
+      male: boolean;
+      female: boolean;
+      all: boolean;
+    };
+    ages: [number, number];
+  };
 }
 
 export default User;

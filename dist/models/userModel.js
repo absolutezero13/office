@@ -79,6 +79,18 @@ const UserSchema = new mongoose_1.default.Schema({
         type: Date,
         default: Date.now(),
     },
+    preferences: {
+        required: [true, "preferences is required"],
+        type: {
+            distance: Number,
+            gender: {
+                male: Boolean,
+                female: Boolean,
+                all: Boolean,
+            },
+            ages: [Number, Number],
+        },
+    },
 });
 const User = mongoose_1.default.model("User", UserSchema);
 exports.default = User;

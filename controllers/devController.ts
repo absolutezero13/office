@@ -45,6 +45,15 @@ export const generateUsers = async (req: Request, res: Response) => {
           type: "Point",
           coordinates: [randomCity.geolocation.lon, randomCity.geolocation.lat],
         },
+        preferences: {
+          distance: 100,
+          gender: {
+            male: false,
+            female: true,
+            all: false,
+          },
+          ages: [20, 40],
+        },
       };
 
       user.password = await bcrypt.hash(user.password, 10);
