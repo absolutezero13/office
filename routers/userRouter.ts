@@ -2,7 +2,7 @@ import express from "express";
 import {
   deleteImage,
   deleteUser,
-  getAllUsers,
+  getAllAvailableUsers,
   getUser,
   getUserImages,
   isUnique,
@@ -24,15 +24,12 @@ const router = express.Router();
 router.post("/signup", signUp);
 router.post("/signin", signIn);
 router.post("/signin-with-token", checkJwt, signInWithToken);
-router.route("/").get(checkJwt, getAllUsers);
+router
+  .route("/")
+  .get(checkJwt, getAllAvailableUsers)
+  .patch(checkJwt, updateUser);
 router.route("/isUnique").post(isUnique);
 router.route("/generate-users").get(generateUsers);
-
-router
-  .route("/:id")
-  .get(checkJwt, getUser)
-  .delete(checkJwt, deleteUser)
-  .patch(checkJwt, updateUser);
 
 // IMAGE ROUTES
 router

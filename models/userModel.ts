@@ -111,6 +111,10 @@ export interface IUser {
   createdAt: string;
   city: string;
   county: string;
+  geometry: {
+    type: string;
+    coordinates: [number, number];
+  };
   preferences: {
     distance: number;
     gender: {

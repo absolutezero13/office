@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
+exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllAvailableUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -234,16 +234,31 @@ const signInWithToken = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.signInWithToken = signInWithToken;
-const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllAvailableUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("finding users");
+        console.log("req received!");
         const currentUser = req.body.user;
         const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
         const self = currentUser._id;
         const allFilters = [...likeAndDislikes, self];
+        const EARTH_RADIUS = 6378.1;
+        const locationQuery = {
+            geometry: {
+                $geoWithin: {
+                    $centerSphere: [
+                        [
+                            currentUser.geometry.coordinates[0],
+                            currentUser.geometry.coordinates[1],
+                        ],
+                        currentUser.preferences.distance / EARTH_RADIUS,
+                    ],
+                },
+            },
+        };
         const users = yield userModel_1.default.find({
             _id: { $nin: allFilters },
         })
+            .find(locationQuery)
             .limit(20)
             .select("-password");
         res.status(200).json({
@@ -258,11 +273,12 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 });
-exports.getAllUsers = getAllUsers;
+exports.getAllAvailableUsers = getAllAvailableUsers;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const currentUser = req.body.user;
         const updatedUser = req.body;
-        const user = yield userModel_1.default.findByIdAndUpdate(req.params.id, updatedUser, {
+        const user = yield userModel_1.default.findByIdAndUpdate(currentUser._id, updatedUser, {
             new: true,
             runValidators: true,
         });

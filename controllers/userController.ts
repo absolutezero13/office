@@ -259,19 +259,35 @@ export const signInWithToken = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllAvailableUsers = async (req: Request, res: Response) => {
   try {
-    console.log("finding users");
+    console.log("req received!");
     const currentUser: IUser = req.body.user;
-
     const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
     const self = currentUser._id;
 
     const allFilters = [...likeAndDislikes, self];
 
+    const EARTH_RADIUS = 6378.1;
+
+    const locationQuery = {
+      geometry: {
+        $geoWithin: {
+          $centerSphere: [
+            [
+              currentUser.geometry.coordinates[0],
+              currentUser.geometry.coordinates[1],
+            ],
+            currentUser.preferences.distance / EARTH_RADIUS,
+          ],
+        },
+      },
+    };
+
     const users: IUser[] = await User.find({
       _id: { $nin: allFilters },
     })
+      .find(locationQuery)
       .limit(20)
       .select("-password");
 
@@ -288,9 +304,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 export const updateUser = async (req: Request, res: Response) => {
   try {
+    const currentUser = req.body.user;
     const updatedUser = req.body;
 
-    const user = await User.findByIdAndUpdate(req.params.id, updatedUser, {
+    const user = await User.findByIdAndUpdate(currentUser._id, updatedUser, {
       new: true,
       runValidators: true,
     });
