@@ -284,13 +284,21 @@ export const getAllAvailableUsers = async (req: Request, res: Response) => {
       },
     };
 
-    const users: IUser[] = await User.find({
+    const usersQuery = User.find({
       _id: { $nin: allFilters },
-      gender: { $eq: currentUser.preferences.gender },
     })
       .find(locationQuery)
       .limit(20)
       .select("-password");
+
+    let users;
+    if (currentUser.preferences.gender === "all") {
+      users = await usersQuery;
+    } else {
+      users = await usersQuery.find({
+        gender: { $eq: currentUser.preferences.gender },
+      });
+    }
 
     res.status(200).json({
       count: users.length,

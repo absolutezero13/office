@@ -255,13 +255,21 @@ const getAllAvailableUsers = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 },
             },
         };
-        const users = yield userModel_1.default.find({
+        const usersQuery = userModel_1.default.find({
             _id: { $nin: allFilters },
-            gender: { $eq: currentUser.preferences.gender },
         })
             .find(locationQuery)
             .limit(20)
             .select("-password");
+        let users;
+        if (currentUser.preferences.gender === "all") {
+            users = yield usersQuery;
+        }
+        else {
+            users = yield usersQuery.find({
+                gender: { $eq: currentUser.preferences.gender },
+            });
+        }
         res.status(200).json({
             count: users.length,
             data: users,
