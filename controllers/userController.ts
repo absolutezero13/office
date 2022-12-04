@@ -286,6 +286,7 @@ export const getAllAvailableUsers = async (req: Request, res: Response) => {
 
     const users: IUser[] = await User.find({
       _id: { $nin: allFilters },
+      gender: { $eq: currentUser.preferences.gender },
     })
       .find(locationQuery)
       .limit(20)

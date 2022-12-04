@@ -81,12 +81,11 @@ const UserSchema = new mongoose.Schema({
     required: [true, "preferences is required"],
     type: {
       distance: Number,
-      gender: {
-        male: Boolean,
-        female: Boolean,
-        all: Boolean,
+      gender: String,
+      ages: {
+        max: Number,
+        min: Number,
       },
-      ages: [Number, Number],
     },
   },
 });
@@ -117,12 +116,11 @@ export interface IUser {
   };
   preferences: {
     distance: number;
-    gender: {
-      male: boolean;
-      female: boolean;
-      all: boolean;
+    gender: string;
+    ages: {
+      max: number;
+      min: number;
     };
-    ages: [number, number];
   };
 }
 

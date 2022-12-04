@@ -257,6 +257,7 @@ const getAllAvailableUsers = (req, res) => __awaiter(void 0, void 0, void 0, fun
         };
         const users = yield userModel_1.default.find({
             _id: { $nin: allFilters },
+            gender: { $eq: currentUser.preferences.gender },
         })
             .find(locationQuery)
             .limit(20)

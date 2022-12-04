@@ -1,26 +1,27 @@
-import bcrypt from "bcryptjs";
-import User from "../models/userModel";
 import { Request, Response } from "express";
-import { names } from "../helpers/names";
 import axios from "axios";
+import bcrypt from "bcryptjs";
+
+import User from "../models/userModel";
+import { names } from "../helpers/names";
+import { randomIntFromInterval } from "../helpers/random";
 
 export const generateUsers = async (req: Request, res: Response) => {
   try {
-    await User.deleteMany({
-      _id: { $ne: "63824890e97bc2148676dc40" },
-    });
+    await User.deleteMany({});
 
-    const turkeyEndPoint = "https://turkeys-api.herokuapp.com";
+    const turkeyEndPoint =
+      "https://us-central1-tandir-364518.cloudfunctions.net/app";
 
     const citiesResp = await axios.get(turkeyEndPoint + "/cities");
 
     const cities = citiesResp.data.data;
 
     for (let i = 0; i < 200; i++) {
-      const birthYear = Math.floor(Math.random() * 20) + 1980;
-      const gender = ["male", "female"][Math.floor(Math.random() * 2)];
+      const birthYear = randomIntFromInterval(1975, 2000);
+      const gender = ["male", "female"][randomIntFromInterval(0, 1)];
 
-      const randomCity = cities[Math.floor(Math.random() * 81)];
+      const randomCity = cities[randomIntFromInterval(0, 80)];
       const countiesRes = await axios.get(
         `${turkeyEndPoint}/counties?city=${randomCity.name}`
       );
@@ -47,23 +48,20 @@ export const generateUsers = async (req: Request, res: Response) => {
         },
         preferences: {
           distance: 100,
-          gender: {
-            male: false,
-            female: true,
-            all: false,
-          },
-          ages: [20, 40],
+          gender: ["male", "female", "all"][randomIntFromInterval(0, 2)],
+          ages: [randomIntFromInterval(20, 40), randomIntFromInterval(41, 80)],
         },
       };
 
       user.password = await bcrypt.hash(user.password, 10);
 
       const newUser = await User.create(user);
-      console.log("created", user);
+      console.log("created", newUser.username);
     }
 
     res.status(200).send({});
   } catch (error) {
+    console.log("err?", error);
     res.status(400).send(error);
   }
 };
