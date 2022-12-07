@@ -17,8 +17,8 @@ export const generateUsers = async (req: Request, res: Response) => {
 
     const cities = citiesResp.data.data;
 
-    for (let i = 0; i < 200; i++) {
-      const birthYear = randomIntFromInterval(1975, 2000);
+    for (let i = 0; i < names.length; i++) {
+      const birthYear = randomIntFromInterval(1942, 2003);
       const gender = ["male", "female"][randomIntFromInterval(0, 1)];
 
       const randomCity = cities[randomIntFromInterval(0, 80)];
@@ -26,13 +26,12 @@ export const generateUsers = async (req: Request, res: Response) => {
         `${turkeyEndPoint}/counties?city=${randomCity.name}`
       );
       const user = {
-        username: names[i * 10],
+        username: names[i],
         email: "admin@hotmail.com" + Math.random(),
         password: "12345",
         birthDate: `${birthYear}-04-28T14:45:15`,
-        description: `Hello my name is ${
-          names[i * 10]
-        } and I'm a tandir test user. I don't exist, I only exist in your dreams. You wanker.`,
+        birthDateInMs: new Date(`${birthYear}-04-28T14:45:15`).getTime(),
+        description: `Hello my name is ${names[i]} and I'm a tandir test user. I don't exist, I only exist in your dreams. You wanker.`,
         phoneNumber: "55469060716" + Math.random(),
         pictures: [],
         matches: [],
@@ -49,7 +48,10 @@ export const generateUsers = async (req: Request, res: Response) => {
         preferences: {
           distance: 100,
           gender: ["male", "female", "all"][randomIntFromInterval(0, 2)],
-          ages: [randomIntFromInterval(20, 40), randomIntFromInterval(41, 80)],
+          ages: {
+            min: randomIntFromInterval(20, 40),
+            max: randomIntFromInterval(41, 80),
+          },
         },
       };
 

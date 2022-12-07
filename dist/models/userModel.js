@@ -40,6 +40,10 @@ const UserSchema = new mongoose_1.default.Schema({
         type: Date,
         required: [true, "Birthdate is required."],
     },
+    birthDateInMs: {
+        type: Number,
+        required: [true, "Birthdate miliseconds is required."],
+    },
     description: {
         type: String,
     },

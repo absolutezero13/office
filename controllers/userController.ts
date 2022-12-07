@@ -262,14 +262,27 @@ export const signInWithToken = async (req: Request, res: Response) => {
 export const getAllAvailableUsers = async (req: Request, res: Response) => {
   try {
     console.log("req received!");
+
     const currentUser: IUser = req.body.user;
+
+    // LIKE-DISLIKE-USER ITSELF
     const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
     const self = currentUser._id;
-
     const allFilters = [...likeAndDislikes, self];
 
+    // AGE FILTER
+    const MS_IN_A_YEAR = 31536000000;
+    const TODAY_IN_MS = new Date().getTime();
+    const minMs = TODAY_IN_MS - currentUser.preferences.ages.max * MS_IN_A_YEAR;
+    const maxMs = TODAY_IN_MS - currentUser.preferences.ages.min * MS_IN_A_YEAR;
+
+    // LOCATION
     const EARTH_RADIUS = 6378.1;
 
+    console.log(
+      currentUser.geometry.coordinates[0],
+      currentUser.geometry.coordinates[1]
+    );
     const locationQuery = {
       geometry: {
         $geoWithin: {
@@ -288,6 +301,9 @@ export const getAllAvailableUsers = async (req: Request, res: Response) => {
       _id: { $nin: allFilters },
     })
       .find(locationQuery)
+      .find({
+        birthDateInMs: { $gte: minMs, $lte: maxMs },
+      })
       .limit(20)
       .select("-password");
 
