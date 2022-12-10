@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getUser = exports.updateUser = exports.getAllAvailableUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
+exports.deleteUser = exports.getMultipleUsers = exports.getUser = exports.updateUser = exports.getAllAvailableUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -249,7 +249,6 @@ const getAllAvailableUsers = (req, res) => __awaiter(void 0, void 0, void 0, fun
         const maxMs = TODAY_IN_MS - currentUser.preferences.ages.min * MS_IN_A_YEAR;
         // LOCATION
         const EARTH_RADIUS = 6378.1;
-        console.log(currentUser.geometry.coordinates[0], currentUser.geometry.coordinates[1]);
         const locationQuery = {
             geometry: {
                 $geoWithin: {
@@ -296,12 +295,13 @@ const getAllAvailableUsers = (req, res) => __awaiter(void 0, void 0, void 0, fun
 exports.getAllAvailableUsers = getAllAvailableUsers;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const currentUser = req.body.user;
+        const userId = req.params.id;
         const updatedUser = req.body;
-        const user = yield userModel_1.default.findByIdAndUpdate(currentUser._id, updatedUser, {
+        const user = yield userModel_1.default.findByIdAndUpdate(userId, updatedUser, {
             new: true,
             runValidators: true,
         });
+        user.password = null;
         res.status(200).json({
             data: user,
         });
@@ -330,6 +330,24 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUser = getUser;
+const getMultipleUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const ids = req.body.userIds;
+        const users = yield userModel_1.default.find({
+            _id: { $in: ids },
+        }).select("-password");
+        res.status(200).json({
+            data: users,
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            status: "fail",
+            message: err,
+        });
+    }
+});
+exports.getMultipleUsers = getMultipleUsers;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield userModel_1.default.findByIdAndDelete(req.params.id);

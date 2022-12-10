@@ -11,6 +11,7 @@ import {
   signUp,
   updateUser,
   uploadImages,
+  getMultipleUsers,
 } from "../controllers/userController";
 import multer from "multer";
 import { checkJwt } from "../helpers/auth";
@@ -24,13 +25,12 @@ const router = express.Router();
 router.post("/signup", signUp);
 router.post("/signin", signIn);
 router.post("/signin-with-token", checkJwt, signInWithToken);
-router
-  .route("/")
-  .get(checkJwt, getAllAvailableUsers)
-  .patch(checkJwt, updateUser);
+router.route("/").get(checkJwt, getAllAvailableUsers);
+router.route("/many").post(checkJwt, getMultipleUsers);
 router.route("/isUnique").post(isUnique);
 router.route("/generate-users").get(generateUsers);
 
+router.route("/:id").patch(checkJwt, updateUser).get(checkJwt, getUser);
 // IMAGE ROUTES
 router
   .route("/:id/images")

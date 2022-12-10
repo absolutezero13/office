@@ -279,10 +279,6 @@ export const getAllAvailableUsers = async (req: Request, res: Response) => {
     // LOCATION
     const EARTH_RADIUS = 6378.1;
 
-    console.log(
-      currentUser.geometry.coordinates[0],
-      currentUser.geometry.coordinates[1]
-    );
     const locationQuery = {
       geometry: {
         $geoWithin: {
@@ -329,13 +325,15 @@ export const getAllAvailableUsers = async (req: Request, res: Response) => {
 };
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const currentUser = req.body.user;
+    const userId = req.params.id;
     const updatedUser = req.body;
 
-    const user = await User.findByIdAndUpdate(currentUser._id, updatedUser, {
+    const user = await User.findByIdAndUpdate(userId, updatedUser, {
       new: true,
       runValidators: true,
     });
+
+    user.password = null;
 
     res.status(200).json({
       data: user,
@@ -355,6 +353,25 @@ export const getUser = async (req: Request, res: Response) => {
 
     res.status(200).json({
       data: user,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: err,
+    });
+  }
+};
+
+export const getMultipleUsers = async (req: Request, res: Response) => {
+  try {
+    const ids = req.body.userIds;
+
+    const users = await User.find({
+      _id: { $in: ids },
+    }).select("-password");
+
+    res.status(200).json({
+      data: users,
     });
   } catch (err) {
     res.status(400).json({
