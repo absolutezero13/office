@@ -35,7 +35,7 @@ export const uploadImages = async (req: Request, res: Response) => {
   try {
     if (!req.files) {
       res.status(400).json({
-        message: "files required!",
+        message: "no files provided!",
       });
       return;
     }
