@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import userRouter from "./routers/userRouter";
 import geoRouter from "./routers/geoRouter";
 import socket from "socket.io";
+import conversationRouter from "./routers/conversationRouter";
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use(express.static("public"));
 
 app.use("/users", userRouter);
 app.use("/geo", geoRouter);
+app.use("/conversation", conversationRouter);
 
 app.get("/", (req, res) =>
   res.send("Hello From the server. This is a test route")
