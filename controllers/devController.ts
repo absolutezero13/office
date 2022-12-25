@@ -17,7 +17,7 @@ export const generateUsers = async (req: Request, res: Response) => {
 
     const cities = citiesResp.data.data;
 
-    for (let i = 0; i < names.length; i++) {
+    for (let i = 0; i < 50; i++) {
       const birthYear = randomIntFromInterval(1942, 2003);
       const gender = ["male", "female"][randomIntFromInterval(0, 1)];
 

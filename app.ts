@@ -1,17 +1,32 @@
+import http from "http";
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRouter from "./routers/userRouter";
 import geoRouter from "./routers/geoRouter";
+import socket from "socket.io";
 
 const app = express();
-dotenv.config();
+
+const server = http.createServer(app);
+
+const { Server: SocketServer } = socket;
+const io = new SocketServer(server);
 
 let db = process.env.TEST_DB_NAME as string;
 const mode: "prod" | "dev" = process.env.MODE as "prod" | "dev";
 if (mode === "prod") {
   db = process.env.PROD_DB_NAME as string;
 }
+
+io.on("connection", (socket) => {
+  socket.on("message", (msg: string, room: string) => {
+    socket.to(room).emit("receive-message", msg);
+  });
+  socket.on("join-room", (room) => {
+    socket.join(room);
+  });
+});
 
 const DB = process.env.DB?.replace(
   "<password>",
@@ -27,14 +42,14 @@ mongoose
     console.log(err);
   });
 
-dotenv.config({ path: "./.env" });
 app.use(express.json());
 app.use(express.static("public"));
 
 app.use("/users", userRouter);
 app.use("/geo", geoRouter);
+
 app.get("/", (req, res) =>
   res.send("Hello From the server. This is a test route")
 );
 
-app.listen(process.env.PORT);
+server.listen(process.env.PORT);

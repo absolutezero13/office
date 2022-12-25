@@ -43,7 +43,7 @@ const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         if (!req.files) {
             res.status(400).json({
-                message: "files required!",
+                message: "no files provided!",
             });
             return;
         }
