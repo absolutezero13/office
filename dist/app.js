@@ -26,6 +26,12 @@ io.on("connection", (socket) => {
     socket.on("join-room", (room) => {
         socket.join(room);
     });
+    socket.on("writing", (room) => {
+        socket.to(room).emit("is-writing");
+    });
+    socket.on("not-writing", (room) => {
+        socket.to(room).emit("is-not-writing");
+    });
 });
 const DB = (_a = process.env.DB) === null || _a === void 0 ? void 0 : _a.replace("<password>", process.env.DBPASSWORD).replace("<db>", db);
 mongoose_1.default

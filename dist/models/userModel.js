@@ -52,7 +52,12 @@ const UserSchema = new mongoose_1.default.Schema({
         required: [true, "Pictures is required."],
     },
     matches: {
-        type: [String],
+        type: [
+            {
+                userId: String,
+                matchId: String,
+            },
+        ],
         required: [true, "Matches is required field"],
     },
     likes: {

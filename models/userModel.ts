@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+type MatchType = {
+  userId: string;
+  matchId: string;
+};
+
 const geoSchema = new mongoose.Schema({
   type: String,
   coordinates: [Number, Number],
@@ -50,7 +55,12 @@ const UserSchema = new mongoose.Schema({
     required: [true, "Pictures is required."],
   },
   matches: {
-    type: [String],
+    type: [
+      {
+        userId: String,
+        matchId: String,
+      },
+    ],
     required: [true, "Matches is required field"],
   }, // ID REFERENCES,
   likes: {
@@ -107,7 +117,7 @@ export interface IUser {
   birthDate: Date | string;
   description: string;
   pictures: { image: string; order: number }[];
-  matches: string[];
+  matches: MatchType[];
   likes: string[];
   dislikes: string[];
   role: string;
