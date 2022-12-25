@@ -13,7 +13,6 @@ const ConversationSchema = new mongoose.Schema({
         from: String,
         to: String,
         createdAt: Date,
-        order: Number,
       },
     ],
   },
@@ -24,7 +23,6 @@ type Message = {
   from: string;
   to: string;
   createdAt: Date;
-  order: number;
 };
 
 export interface Conversation {
