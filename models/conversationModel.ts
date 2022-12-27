@@ -6,6 +6,12 @@ const ConversationSchema = new mongoose.Schema({
     required: [true, "matchid is required."],
     unique: true,
   },
+  unread: [
+    {
+      userId: String,
+      messages: [String],
+    },
+  ],
   messages: {
     type: [
       {
@@ -28,6 +34,10 @@ type Message = {
 export interface Conversation {
   matchId: string;
   messages: Message;
+  unread: {
+    userId: string;
+    messages: string[];
+  }[];
 }
 
 const Conversation = mongoose.model("Conversation", ConversationSchema);

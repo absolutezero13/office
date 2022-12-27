@@ -22,7 +22,7 @@ if (mode === "prod") {
 }
 io.on("connection", (socket) => {
     socket.on("message", (msg, room) => {
-        socket.to(room).emit("receive-message", msg);
+        socket.to(room).emit("receive-message", { msg, room });
     });
     socket.on("join-room", (room) => {
         socket.join(room);
