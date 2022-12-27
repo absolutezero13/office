@@ -48,16 +48,10 @@ export const createConversation = async (req: Request, res: Response) => {
     const resp = await Conversation.create({
       matchId,
       messages: [],
-      unread: [
-        {
-          userId: req.body.user.id,
-          messages: [],
-        },
-        {
-          userId: req.body.matchedUserId,
-          messages: [],
-        },
-      ],
+      unread: {
+        [req.body.user.id]: [],
+        [req.body.matchedUserId]: [],
+      },
     });
 
     res.status(200).json({
@@ -74,7 +68,7 @@ export const createConversation = async (req: Request, res: Response) => {
 
 export const pushMessage = async (req: Request, res: Response) => {
   try {
-    const resp = await Conversation.updateOne(
+    let resp = await Conversation.updateOne(
       {
         matchId: req.body.matchId,
       },
@@ -82,6 +76,15 @@ export const pushMessage = async (req: Request, res: Response) => {
         $push: { messages: req.body.message },
       }
     );
+
+    if (req.body.shouldUpdateUnread) {
+      resp = await Conversation.updateOne(
+        {
+          matchId: req.body.matchId,
+        },
+        { $push: { unread: { [req.body.user.id]: req.body.message } } }
+      );
+    }
 
     res.status(200).json({
       succes: true,

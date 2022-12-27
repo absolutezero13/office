@@ -6,12 +6,9 @@ const ConversationSchema = new mongoose.Schema({
     required: [true, "matchid is required."],
     unique: true,
   },
-  unread: [
-    {
-      userId: String,
-      messages: [String],
-    },
-  ],
+  unread: {
+    type: {},
+  },
   messages: {
     type: [
       {
@@ -35,7 +32,7 @@ export interface Conversation {
   matchId: string;
   messages: Message;
   unread: {
-    userId: string;
+    [key]: string;
     messages: string[];
   }[];
 }
