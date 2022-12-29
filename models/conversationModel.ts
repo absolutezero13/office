@@ -32,8 +32,7 @@ export interface Conversation {
   matchId: string;
   messages: Message;
   unread: {
-    [key]: string;
-    messages: string[];
+    [key: string]: string[];
   }[];
 }
 

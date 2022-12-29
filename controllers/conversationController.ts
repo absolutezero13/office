@@ -77,18 +77,35 @@ export const pushMessage = async (req: Request, res: Response) => {
       }
     );
 
-    if (req.body.shouldUpdateUnread) {
-      resp = await Conversation.updateOne(
-        {
-          matchId: req.body.matchId,
-        },
-        { $push: { unread: { [req.body.user.id]: req.body.message } } }
-      );
-    }
-
     res.status(200).json({
       succes: true,
       data: resp,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      error,
+    });
+  }
+};
+
+export const pushUnreadMessage = async (req: Request, res: Response) => {
+  try {
+    const prop = `unread.${req.body.user._id}`;
+    const resp = await Conversation.updateOne(
+      {
+        matchId: req.body.matchId,
+      },
+      { $push: { [prop]: req.body.message } }
+    );
+
+    const allConversations = await Conversation.find({
+      matchId: req.body.matchId,
+    });
+
+    res.status(200).json({
+      succes: true,
+      data: allConversations,
     });
   } catch (error) {
     res.send({
