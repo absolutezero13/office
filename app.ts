@@ -21,8 +21,8 @@ if (mode === "prod") {
 }
 
 io.on("connection", (socket) => {
-  socket.on("message", (msg: string, room: string) => {
-    socket.to(room).emit("receive-message", { msg, room });
+  socket.on("message", (msg: string, room: string, sender: string) => {
+    socket.to(room).emit("receive-message", { msg, room, sender });
   });
   socket.on("join-room", (room) => {
     socket.join(room);

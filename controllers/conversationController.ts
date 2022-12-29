@@ -22,7 +22,9 @@ export const getConversation = async (req: Request, res: Response) => {
 };
 export const getAllConversations = async (req: Request, res: Response) => {
   try {
-    const userMatches = req.body.user.matches.map((match) => match.matchId);
+    const userMatches = req.body.user.matches.map(
+      (match: any) => match.matchId
+    );
     const conversations = await Conversation.find({
       matchId: {
         $in: userMatches,
@@ -92,11 +94,38 @@ export const pushMessage = async (req: Request, res: Response) => {
 export const pushUnreadMessage = async (req: Request, res: Response) => {
   try {
     const prop = `unread.${req.body.user._id}`;
-    const resp = await Conversation.updateOne(
+    await Conversation.updateOne(
       {
         matchId: req.body.matchId,
       },
       { $push: { [prop]: req.body.message } }
+    );
+
+    const allConversations = await Conversation.find({
+      matchId: req.body.matchId,
+    });
+
+    res.status(200).json({
+      succes: true,
+      data: allConversations,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      error,
+    });
+  }
+};
+
+export const wipeUnreadMessages = async (req: Request, res: Response) => {
+  try {
+    console.log("wipe req");
+    const prop = `unread.${req.body.user._id}`;
+    await Conversation.updateOne(
+      {
+        matchId: req.body.matchId,
+      },
+      { $set: { [prop]: [] } }
     );
 
     const allConversations = await Conversation.find({

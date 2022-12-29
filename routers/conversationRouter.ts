@@ -5,6 +5,7 @@ import {
   getConversation,
   pushMessage,
   pushUnreadMessage,
+  wipeUnreadMessages,
 } from "../controllers/conversationController";
 import { checkJwt } from "../helpers/auth";
 
@@ -17,5 +18,7 @@ router
   .get(checkJwt, getAllConversations);
 router.post("/message", checkJwt, pushMessage);
 router.post("/unread-message", checkJwt, pushUnreadMessage);
+
+router.post("/wipe-unread-message", checkJwt, wipeUnreadMessages);
 
 export default router;

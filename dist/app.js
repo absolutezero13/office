@@ -21,8 +21,8 @@ if (mode === "prod") {
     db = process.env.PROD_DB_NAME;
 }
 io.on("connection", (socket) => {
-    socket.on("message", (msg, room) => {
-        socket.to(room).emit("receive-message", { msg, room });
+    socket.on("message", (msg, room, sender) => {
+        socket.to(room).emit("receive-message", { msg, room, sender });
     });
     socket.on("join-room", (room) => {
         socket.join(room);
