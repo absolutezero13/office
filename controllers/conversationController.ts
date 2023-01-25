@@ -128,9 +128,7 @@ export const wipeUnreadMessages = async (req: Request, res: Response) => {
       { $set: { [prop]: [] } }
     );
 
-    const allConversations = await Conversation.find({
-      matchId: req.body.matchId,
-    });
+    const allConversations = await Conversation.find({});
 
     res.status(200).json({
       succes: true,
