@@ -101,9 +101,7 @@ export const pushUnreadMessage = async (req: Request, res: Response) => {
       { $push: { [prop]: req.body.message } }
     );
 
-    const allConversations = await Conversation.find({
-      matchId: req.body.matchId,
-    });
+    const allConversations = await Conversation.find({});
 
     res.status(200).json({
       succes: true,
@@ -119,7 +117,6 @@ export const pushUnreadMessage = async (req: Request, res: Response) => {
 
 export const wipeUnreadMessages = async (req: Request, res: Response) => {
   try {
-    console.log("wipe req");
     const prop = `unread.${req.body.user._id}`;
     await Conversation.updateOne(
       {

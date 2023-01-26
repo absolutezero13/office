@@ -21,11 +21,6 @@ const UserSchema = new mongoose.Schema({
     required: [true, "username is required."],
     unique: true,
   },
-  email: {
-    type: String,
-    required: [true, "Email is required."],
-    unique: true,
-  },
   password: {
     type: String,
     required: [true, "Password is required."],
@@ -109,7 +104,6 @@ const User = mongoose.model("User", UserSchema);
 export interface IUser {
   _id: string;
   username: string;
-  email: string;
   phoneNumber: string;
   password: string;
   confirmPassword?: string;

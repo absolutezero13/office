@@ -22,6 +22,7 @@ if (mode === "prod") {
 }
 io.on("connection", (socket) => {
     socket.on("message", (msg, room, sender) => {
+        console.log(msg, room, sender);
         socket.to(room).emit("receive-message", { msg, room, sender });
     });
     socket.on("join-room", (room) => {

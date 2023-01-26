@@ -181,7 +181,7 @@ exports.isUnique = isUnique;
 const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userInfo = req.body;
-        const user = yield userModel_1.default.findOne({ username: userInfo.username });
+        const user = (yield userModel_1.default.findOne({ username: userInfo.username }));
         if (!user) {
             res.status(401).json({
                 status: "fail",
@@ -201,7 +201,7 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = jsonwebtoken_1.default.sign({
             id: user._id,
             username: user.username,
-            email: user.email,
+            phoneNumber: user.phoneNumber,
         }, "secret");
         user.password = null;
         res.status(200).json({

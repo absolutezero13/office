@@ -199,7 +199,7 @@ export const signIn = async (req: Request, res: Response) => {
       password: string;
     } = req.body;
 
-    const user = await User.findOne({ username: userInfo.username });
+    const user = (await User.findOne({ username: userInfo.username })) as IUser;
 
     if (!user) {
       res.status(401).json({
@@ -224,7 +224,7 @@ export const signIn = async (req: Request, res: Response) => {
       {
         id: user._id,
         username: user.username,
-        email: user.email,
+        phoneNumber: user.phoneNumber,
       },
       "secret"
     );

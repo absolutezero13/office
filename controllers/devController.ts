@@ -27,7 +27,6 @@ export const generateUsers = async (req: Request, res: Response) => {
       );
       const user = {
         username: names[i],
-        email: "admin@hotmail.com" + Math.random(),
         password: "12345",
         birthDate: `${birthYear}-04-28T14:45:15`,
         birthDateInMs: new Date(`${birthYear}-04-28T14:45:15`).getTime(),
