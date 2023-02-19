@@ -1,11 +1,11 @@
 import http from "http";
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import userRouter from "./routers/userRouter";
 import geoRouter from "./routers/geoRouter";
 import socket from "socket.io";
 import conversationRouter from "./routers/conversationRouter";
+import initSocket from "./controllers/socketController";
 
 const app = express();
 
@@ -20,21 +20,7 @@ if (mode === "prod") {
   db = process.env.PROD_DB_NAME as string;
 }
 
-io.on("connection", (socket) => {
-  socket.on("message", (msg: string, room: string, sender: string) => {
-    console.log(msg, room, sender);
-    socket.to(room).emit("receive-message", { msg, room, sender });
-  });
-  socket.on("join-room", (room) => {
-    socket.join(room);
-  });
-  socket.on("writing", (room) => {
-    socket.to(room).emit("is-writing");
-  });
-  socket.on("not-writing", (room) => {
-    socket.to(room).emit("is-not-writing");
-  });
-});
+initSocket(io);
 
 const DB = process.env.DB?.replace(
   "<password>",
@@ -43,7 +29,7 @@ const DB = process.env.DB?.replace(
 
 mongoose
   .connect(DB as string)
-  .then((con) => {
+  .then(() => {
     console.log("Connected to MongoDB");
   })
   .catch((err) => {

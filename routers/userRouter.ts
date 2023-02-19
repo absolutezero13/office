@@ -1,7 +1,6 @@
 import express from "express";
 import {
   deleteImage,
-  deleteUser,
   getAllAvailableUsers,
   getUser,
   getUserImages,

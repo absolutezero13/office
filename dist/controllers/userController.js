@@ -8,11 +8,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.getMultipleUsers = exports.getUser = exports.updateUser = exports.getAllAvailableUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
+exports.getMultipleUsers = exports.getUser = exports.updateUser = exports.getAllAvailableUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -47,7 +58,6 @@ const uploadImages = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             });
             return;
         }
-        console.log("req.files!", req.files);
         const userId = req.params.id;
         for (const file of req === null || req === void 0 ? void 0 : req.files) {
             const imageName = file.originalname + "-" + crypto_1.default.randomUUID();
@@ -203,7 +213,7 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             username: user.username,
             phoneNumber: user.phoneNumber,
         }, "secret");
-        user.password = null;
+        delete user.password;
         res.status(200).json({
             data: {
                 token,
@@ -236,7 +246,6 @@ const signInWithToken = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.signInWithToken = signInWithToken;
 const getAllAvailableUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("req received!");
         const currentUser = req.body.user;
         // LIKE-DISLIKE-USER ITSELF
         const likeAndDislikes = [...currentUser.likes, ...currentUser.dislikes];
@@ -272,6 +281,7 @@ const getAllAvailableUsers = (req, res) => __awaiter(void 0, void 0, void 0, fun
             .limit(20)
             .select("-password");
         let users;
+        // GENDER FILTER
         if (currentUser.preferences.gender === "all") {
             users = yield usersQuery;
         }
@@ -301,9 +311,9 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             new: true,
             runValidators: true,
         });
-        user.password = null;
+        const { password } = user, userWithoutPassword = __rest(user, ["password"]);
         res.status(200).json({
-            data: user,
+            data: userWithoutPassword,
         });
     }
     catch (err) {
@@ -348,18 +358,16 @@ const getMultipleUsers = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getMultipleUsers = getMultipleUsers;
-const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield userModel_1.default.findByIdAndDelete(req.params.id);
-        res.status(204).json({
-            data: user,
-        });
-    }
-    catch (err) {
-        res.status(400).json({
-            status: "fail",
-            message: err,
-        });
-    }
-});
-exports.deleteUser = deleteUser;
+// export const deleteUser = async (req: Request, res: Response) => {
+//   try {
+//     const user = await User.findByIdAndDelete(req.params.id);
+//     res.status(204).json({
+//       data: user,
+//     });
+//   } catch (err) {
+//     res.status(400).json({
+//       status: "fail",
+//       message: err,
+//     });
+//   }
+// };

@@ -6,7 +6,7 @@ dotenv.config({ path: ".env" });
 const bucketRegion = process.env.BUCKET_REGION;
 const bucketAccessKey = process.env.BUCKET_ACCESS_KEY as string;
 const bucketSecretKey = process.env.BUCKET_SECRET_KEY as string;
-console.log("bucket region", bucketRegion);
+
 export const s3 = new S3Client({
   credentials: {
     accessKeyId: bucketAccessKey,

@@ -11,6 +11,7 @@ const userRouter_1 = __importDefault(require("./routers/userRouter"));
 const geoRouter_1 = __importDefault(require("./routers/geoRouter"));
 const socket_io_1 = __importDefault(require("socket.io"));
 const conversationRouter_1 = __importDefault(require("./routers/conversationRouter"));
+const socketController_1 = __importDefault(require("./controllers/socketController"));
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const { Server: SocketServer } = socket_io_1.default;
@@ -20,25 +21,11 @@ const mode = process.env.MODE;
 if (mode === "prod") {
     db = process.env.PROD_DB_NAME;
 }
-io.on("connection", (socket) => {
-    socket.on("message", (msg, room, sender) => {
-        console.log(msg, room, sender);
-        socket.to(room).emit("receive-message", { msg, room, sender });
-    });
-    socket.on("join-room", (room) => {
-        socket.join(room);
-    });
-    socket.on("writing", (room) => {
-        socket.to(room).emit("is-writing");
-    });
-    socket.on("not-writing", (room) => {
-        socket.to(room).emit("is-not-writing");
-    });
-});
+(0, socketController_1.default)(io);
 const DB = (_a = process.env.DB) === null || _a === void 0 ? void 0 : _a.replace("<password>", process.env.DBPASSWORD).replace("<db>", db);
 mongoose_1.default
     .connect(DB)
-    .then((con) => {
+    .then(() => {
     console.log("Connected to MongoDB");
 })
     .catch((err) => {

@@ -40,8 +40,6 @@ export const uploadImages = async (req: Request, res: Response) => {
       return;
     }
 
-    console.log("req.files!", req.files);
-
     const userId = req.params.id;
 
     for (const file of req?.files as Express.Multer.File[]) {
@@ -229,7 +227,7 @@ export const signIn = async (req: Request, res: Response) => {
       "secret"
     );
 
-    user.password = null;
+    delete user.password;
 
     res.status(200).json({
       data: {
@@ -261,8 +259,6 @@ export const signInWithToken = async (req: Request, res: Response) => {
 
 export const getAllAvailableUsers = async (req: Request, res: Response) => {
   try {
-    console.log("req received!");
-
     const currentUser: IUser = req.body.user;
 
     // LIKE-DISLIKE-USER ITSELF
@@ -304,6 +300,8 @@ export const getAllAvailableUsers = async (req: Request, res: Response) => {
       .select("-password");
 
     let users;
+
+    // GENDER FILTER
     if (currentUser.preferences.gender === "all") {
       users = await usersQuery;
     } else {
@@ -333,10 +331,10 @@ export const updateUser = async (req: Request, res: Response) => {
       runValidators: true,
     });
 
-    user.password = null;
+    const { password, ...userWithoutPassword } = user;
 
     res.status(200).json({
-      data: user,
+      data: userWithoutPassword,
     });
   } catch (err) {
     res.status(400).json({
@@ -381,17 +379,17 @@ export const getMultipleUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
+// export const deleteUser = async (req: Request, res: Response) => {
+//   try {
+//     const user = await User.findByIdAndDelete(req.params.id);
 
-    res.status(204).json({
-      data: user,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err,
-    });
-  }
-};
+//     res.status(204).json({
+//       data: user,
+//     });
+//   } catch (err) {
+//     res.status(400).json({
+//       status: "fail",
+//       message: err,
+//     });
+//   }
+// };
