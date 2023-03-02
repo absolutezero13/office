@@ -24,15 +24,12 @@ export const checkJwt = async (
       }
     }
 
-    // VALIDATING TOKEN
-
     const decoded = jwt.verify(
       token as string,
       process.env.JWT_SECRET as string
     ) as jwt.JwtPayload;
 
     const currentUser = await User.findById(decoded.id);
-    // console.log({ currentUser });
     if (!currentUser) {
       return res.status(401).json({
         status: "fail",

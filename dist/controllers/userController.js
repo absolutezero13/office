@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMultipleUsers = exports.getUser = exports.updateUser = exports.getAllAvailableUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
+exports.deleteUser = exports.getMultipleUsers = exports.getUser = exports.updateUser = exports.getAllAvailableUsers = exports.signInWithToken = exports.signIn = exports.isUnique = exports.getUserImages = exports.deleteImage = exports.uploadImages = exports.signUp = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -311,7 +311,7 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             new: true,
             runValidators: true,
         });
-        const { password } = user, userWithoutPassword = __rest(user, ["password"]);
+        const _a = user.toObject(), { password } = _a, userWithoutPassword = __rest(_a, ["password"]);
         res.status(200).json({
             data: userWithoutPassword,
         });
@@ -358,16 +358,18 @@ const getMultipleUsers = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getMultipleUsers = getMultipleUsers;
-// export const deleteUser = async (req: Request, res: Response) => {
-//   try {
-//     const user = await User.findByIdAndDelete(req.params.id);
-//     res.status(204).json({
-//       data: user,
-//     });
-//   } catch (err) {
-//     res.status(400).json({
-//       status: "fail",
-//       message: err,
-//     });
-//   }
-// };
+const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield userModel_1.default.findByIdAndDelete(req.params.id);
+        res.status(204).json({
+            data: user,
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            status: "fail",
+            message: err,
+        });
+    }
+});
+exports.deleteUser = deleteUser;

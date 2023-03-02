@@ -331,7 +331,7 @@ export const updateUser = async (req: Request, res: Response) => {
       runValidators: true,
     });
 
-    const { password, ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = user.toObject();
 
     res.status(200).json({
       data: userWithoutPassword,
@@ -379,17 +379,17 @@ export const getMultipleUsers = async (req: Request, res: Response) => {
   }
 };
 
-// export const deleteUser = async (req: Request, res: Response) => {
-//   try {
-//     const user = await User.findByIdAndDelete(req.params.id);
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
 
-//     res.status(204).json({
-//       data: user,
-//     });
-//   } catch (err) {
-//     res.status(400).json({
-//       status: "fail",
-//       message: err,
-//     });
-//   }
-// };
+    res.status(204).json({
+      data: user,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: err,
+    });
+  }
+};

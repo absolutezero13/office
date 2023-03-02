@@ -11,6 +11,7 @@ import {
   updateUser,
   uploadImages,
   getMultipleUsers,
+  deleteUser,
 } from "../controllers/userController";
 import multer from "multer";
 import { checkJwt } from "../helpers/auth";
@@ -29,7 +30,11 @@ router.route("/many").post(checkJwt, getMultipleUsers);
 router.route("/isUnique").post(isUnique);
 router.route("/generate-users").get(generateUsers);
 
-router.route("/:id").patch(checkJwt, updateUser).get(checkJwt, getUser);
+router
+  .route("/:id")
+  .patch(checkJwt, updateUser)
+  .get(checkJwt, getUser)
+  .delete(checkJwt, deleteUser);
 // IMAGE ROUTES
 router
   .route("/:id/images")

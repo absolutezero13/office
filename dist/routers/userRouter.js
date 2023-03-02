@@ -18,7 +18,11 @@ router.route("/").get(auth_1.checkJwt, userController_1.getAllAvailableUsers);
 router.route("/many").post(auth_1.checkJwt, userController_1.getMultipleUsers);
 router.route("/isUnique").post(userController_1.isUnique);
 router.route("/generate-users").get(devController_1.generateUsers);
-router.route("/:id").patch(auth_1.checkJwt, userController_1.updateUser).get(auth_1.checkJwt, userController_1.getUser);
+router
+    .route("/:id")
+    .patch(auth_1.checkJwt, userController_1.updateUser)
+    .get(auth_1.checkJwt, userController_1.getUser)
+    .delete(auth_1.checkJwt, userController_1.deleteUser);
 // IMAGE ROUTES
 router
     .route("/:id/images")
